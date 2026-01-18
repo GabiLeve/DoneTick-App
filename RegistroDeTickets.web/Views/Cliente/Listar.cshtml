@@ -1,0 +1,38 @@
+﻿@model List<RegistroDeTickets.Data.Entidades.Ticket>
+
+<div class="container">
+    <div class="header text-center">
+        <h1>📋 Tickets Registrados 📋</h1>
+    </div>
+
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col"># Nro</th>
+                        <th scope="col">Motivo</th>
+                        <th scope="col">Prioridad</th>
+                        <th scope="col">Descripción</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Fecha de Emisión</th>
+                    </tr>
+                </thead>
+                <tbody>
+                     @foreach (var ticket in Model)
+                        {
+                        <tr>
+                            <td>@ticket.Id</td>
+                            <td>@ticket.Motivo</td>
+                            <td>@ticket.Prioridad.Nombre</td>
+                            <td>@ticket.Descripcion</td>
+                            <td>@ticket.Estado.Nombre</td> <!-- Hay que cambiar esto para que se muestre el string -->
+                            <td>@ticket.FechaCreacion?.ToString("dd/MM/yyyy")</td>
+
+                        </tr>
+                     }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
