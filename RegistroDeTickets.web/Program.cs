@@ -139,7 +139,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Usuario}/{action=IniciarSesion}/{id?}")
+    pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.MapControllers();
