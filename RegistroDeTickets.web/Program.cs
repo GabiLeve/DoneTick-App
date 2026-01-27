@@ -12,6 +12,9 @@ using RegistroDeTickets.Service;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
+using Microsoft.Extensions.Options;
 
 
 Env.Load();
@@ -101,7 +104,22 @@ builder.Services.AddAuthorization(options =>
 //uilder.Services.AddSingleton(new TokenService(builder.Configuration["Jwt:Key"]));
 
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+builder.Services.AddControllersWithViews()
+    .AddViewLocalization()
+    .AddDataAnnotationsLocalization();
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] {
+        new CultureInfo("es"),
+        new CultureInfo("en")
+    };
+    options.DefaultRequestCulture = new RequestCulture("es");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
 
 builder.Services.AddTransient<IEmailService, EmailService>();
 
@@ -127,7 +145,10 @@ else
     app.UseDeveloperExceptionPage();
 }
 
-app.UseHttpsRedirection(); 
+app.UseHttpsRedirection();
+
+var locOptions = app.Services.GetService<IOptions<RequestLocalizationOptions>>();
+app.UseRequestLocalization(locOptions.Value);
 
 app.UseStaticFiles();
 app.UseRouting();

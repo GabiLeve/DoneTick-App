@@ -2,27 +2,29 @@
     ViewData["Title"] = "Inicio";
     ViewData["CSS"] = "Home/Index.css";
 }
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 <section class="py-5 bg-main-gradient" style="min-height: 70vh; display: flex; align-items: center;">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 pr-lg-5">
-                
+
                 <h1 class="display-3 fw-bold mb-4" style="color: var(--donetick-dark); line-height: 1.1;">
-                    Simplicidad en el soporte, <span style="color: var(--donetick-purple);">eficiencia</span> en la solución.
+                    @Localizer["HeroTitulo"] <span style="color: var(--donetick-purple);">@Localizer["HeroEficiencia"]</span> @Localizer["HeroSolucion"].
                 </h1>
                 <p class="fs-5 text-muted mb-5" style="max-width: 500px;">
-                    Reportar, gestionar y resolver. Así de simple. Centraliza la comunicación y eleva la satisfacción de tus clientes.
+                    @Localizer["HeroSubtitulo"]
                 </p>
                 <div class="d-flex gap-3">
-                    <button class="btn btn-donetick-primary btn-lg rounded-pill shadow">Adquirir solución</button>
-                    <button class="btn btn-outline-dark btn-lg rounded-pill px-4">Ver Demo</button>
+                    <button class="btn btn-donetick-primary btn-lg rounded-pill shadow">@Localizer["BtnAdquirir"]</button>
+                    <button class="btn btn-outline-dark btn-lg rounded-pill px-4">@Localizer["BtnDemo"]</button>
                 </div>
             </div>
             <div class="col-lg-6 mt-5 mt-lg-0">
                 <div class="card border-0 shadow-distinction rounded-4 p-2 bg-white">
                     <img src="https://placehold.co/800x500/00004e/ffffff?text=Panel+de+Soporte+DoneTick"
-                         class="rounded-3 img-fluid shadow-sm" alt="App interface">
+                         class="rounded-3 img-fluid shadow-sm" alt="@Localizer["AltImagenPanel"]">
                 </div>
             </div>
         </div>

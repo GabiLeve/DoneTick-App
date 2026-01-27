@@ -1,5 +1,16 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.Extensions.Options
+@inject IOptions<RequestLocalizationOptions> LocOptions
+
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var cultureItems = LocOptions.Value.SupportedUICultures
+        .Select(c => new SelectListItem { Value = c.Name, Text = c.DisplayName }).ToList();
+}
+
+<!DOCTYPE html>
+<html lang="@requestCulture.RequestCulture.UICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,10 +38,18 @@
                 </a>
                 <div class="ms-auto d-flex align-items-center">
                     <a class="nav-link me-4 fw-bold" style="color: var(--donetick-dark-purple);" asp-controller="Usuario" asp-action="IniciarSesion">Iniciar Sesión</a>
-                    <select class="form-select form-select-sm border-secondary-subtle bg-white" style="width: auto;">
-                        <option>ES</option>
-                        <option>EN</option>
-                    </select>
+
+                    <form asp-controller="Culture" asp-action="SetIdioma"
+                          asp-route-returnUrl="@Context.Request.Path" method="post" class="mb-0">
+
+                        <select name="culture"
+                                class="form-select form-select-sm border-secondary-subtle bg-white"
+                                style="width: auto;"
+                                onchange="this.form.submit()"
+                                asp-for="@requestCulture.RequestCulture.UICulture.Name"
+                                asp-items="cultureItems">
+                        </select>
+                    </form>
                 </div>
             </div>
         </nav>
