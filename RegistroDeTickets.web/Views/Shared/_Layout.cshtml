@@ -8,7 +8,7 @@
 @{
     var requestCulture = Context.Features.Get<IRequestCultureFeature>();
     var cultureItems = LocOptions.Value.SupportedUICultures
-        .Select(c => new SelectListItem { Value = c.Name, Text = c.DisplayName }).ToList();
+        .Select(c => new SelectListItem { Value = c.Name, Text = char.ToUpper(c.NativeName[0]) + c.NativeName.Substring(1) }).ToList();
 }
 
 <!DOCTYPE html>
