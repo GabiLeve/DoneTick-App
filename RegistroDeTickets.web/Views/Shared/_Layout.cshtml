@@ -41,6 +41,7 @@
                 <div class="ms-auto d-flex align-items-center">
                     <a class="nav-link me-4 fw-bold" style="color: var(--donetick-dark-purple);" asp-controller="Usuario" asp-action="IniciarSesion">@Localizer["IniciarSesion"]</a>
 
+                    <div class="language-select-container">
                     <form asp-controller="Culture" asp-action="SetIdioma"
                           asp-route-returnUrl="@Context.Request.Path" method="post" class="mb-0">
 
@@ -52,6 +53,7 @@
                                 asp-items="cultureItems">
                         </select>
                     </form>
+                    </div>
                 </div>
             </div>
         </nav>

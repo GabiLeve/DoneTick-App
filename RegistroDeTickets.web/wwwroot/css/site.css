@@ -29,3 +29,33 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+.language-select-container select {
+    appearance: none; 
+    background-color: #ffffff;
+    border: 2px solid var(--donetick-purple-light, #e0d0f0);
+    border-radius: 20px;
+    padding: 4px 30px 4px 15px;
+    font-size: 0.9rem;
+    color: var(--donetick-dark-purple);
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: all 0.3s ease;
+}
+
+    .language-select-container select:hover {
+        border-color: var(--donetick-purple);
+        box-shadow: 0 0 8px rgba(111, 66, 193, 0.2);
+    }
+
+    .language-select-container select:focus {
+        outline: none;
+        border-color: var(--donetick-purple);
+    }
+
+    .language-select-container select option {
+        background-color: var(--donetick-cream);
+        color: var(--donetick-purple);
+        padding: 10px;
+    }
