@@ -2,6 +2,8 @@
 @using Microsoft.AspNetCore.Localization
 @using Microsoft.Extensions.Options
 @inject IOptions<RequestLocalizationOptions> LocOptions
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
     var requestCulture = Context.Features.Get<IRequestCultureFeature>();
@@ -37,7 +39,7 @@
                          style="width: auto; max-height: 45px;" />
                 </a>
                 <div class="ms-auto d-flex align-items-center">
-                    <a class="nav-link me-4 fw-bold" style="color: var(--donetick-dark-purple);" asp-controller="Usuario" asp-action="IniciarSesion">Iniciar Sesión</a>
+                    <a class="nav-link me-4 fw-bold" style="color: var(--donetick-dark-purple);" asp-controller="Usuario" asp-action="IniciarSesion">@Localizer["IniciarSesion"]</a>
 
                     <form asp-controller="Culture" asp-action="SetIdioma"
                           asp-route-returnUrl="@Context.Request.Path" method="post" class="mb-0">
@@ -61,7 +63,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-6 text-center text-md-start">
-                <p class="mb-0 opacity-75">© 2025-2026 - <span class="fw-bold">DoneTick</span>. Todos los derechos reservados.</p>
+                    <p class="mb-0 opacity-75">© 2025-2026 - <span class="fw-bold">DoneTick</span>@Localizer["Derechos"]</p>
             </div>
             <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
                 <a href="#" class="text-white text-decoration-none mx-2 opacity-75">Privacidad</a>
