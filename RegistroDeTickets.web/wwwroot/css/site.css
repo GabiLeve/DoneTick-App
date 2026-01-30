@@ -66,3 +66,17 @@ body {
         color: var(--donetick-purple);
         padding: 10px;
     }
+
+.btn-donetick-primary {
+    background-color: var(--donetick-purple) !important;
+    color: white !important;
+    border-radius: 50px;
+    padding: 12px 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+    .btn-donetick-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(106, 64, 218, 0.3) !important;
+    }
