@@ -1,6 +1,13 @@
 html {
   font-size: 14px;
 }
+:root {
+    --donetick-dark: #00004e;
+    --donetick-blue-deep: #000380;
+    --donetick-purple: #6a40da;
+    --donetick-cream: #FFF7F0;
+    --donetick-dark-purple: #4b1c71;
+}
 
 @media (min-width: 768px) {
   html {
