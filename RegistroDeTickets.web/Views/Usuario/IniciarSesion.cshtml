@@ -20,7 +20,7 @@
 
             <div class="input-group mb-3 login-input">
                 <span class="input-group-text">
-                    <i class="bi bi-person"></i>
+                    <i class="bi bi-envelope"></i>
                 </span>
                 <input asp-for="Email" type="text" class="form-control" placeholder="Email">
             </div>
@@ -54,11 +54,11 @@
             <span asp-validation-for="PasswordHash" class="text-danger small"></span>
 
             <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-donetick-primary btn-lg"> Ingresar </button>
+                <button type="submit" class="btn btn-donetick-primary btn-lg rounded-pill shadow"> Ingresar </button>
             </div>
 
             <div class="d-grid mt-3">
-                <a class="btn btn-donetick-outline btn-lg" asp-controller="Usuario" asp-action="Registrar"> Registrarme </a>
+                <a class="btn btn-outline-dark btn-lg rounded-pill px-4" asp-controller="Usuario" asp-action="Registrar"> Registrarme </a>
             </div>
 
             <div class="text-center mt-3">
