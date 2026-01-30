@@ -1,7 +1,9 @@
 ﻿@model RegistroDeTickets.web.Models.LoginViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Iniciar Sesión";
+    ViewData["Title"] = Localizer["TituloPestania"];
     ViewData["CSS"] = "Usuario/IniciarSesion.css";
 }
 
@@ -9,10 +11,10 @@
     <div class="registration-form">
 
         <h2 class="text-center mb-4 fw-bold login-title">
-            Iniciar sesión
+            @Localizer["TituloPrincipal"]
         </h2>
         <p class="auth-subtitle text-center">
-            Accedé a tu panel de gestión de tickets
+            @Localizer["Subtitulo"]
         </p>
 
         <form asp-action="IniciarSesion" method="post">
@@ -22,7 +24,7 @@
                 <span class="input-group-text">
                     <i class="bi bi-envelope"></i>
                 </span>
-                <input asp-for="Email" type="text" class="form-control" placeholder="Email">
+                <input asp-for="Email" type="text" class="form-control" placeholder="@Localizer["PlaceholderEmail"]">
             </div>
 
             @if (TempData["MensajeErrorE"] != null)
@@ -38,7 +40,7 @@
                 <span class="input-group-text">
                     <i class="bi bi-lock"></i>
                 </span>
-                <input asp-for="PasswordHash" type="password" class="form-control" id="password" placeholder="Contraseña">
+                <input asp-for="PasswordHash" type="password" class="form-control" id="password" placeholder="@Localizer["PlaceholderPassword"]">
                 <button class="input-group-text password-toggle" type="button" id="togglePassword">
                     <i class="bi bi-eye"></i>
                 </button>
@@ -54,15 +56,15 @@
             <span asp-validation-for="PasswordHash" class="text-danger small"></span>
 
             <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-donetick-primary btn-lg rounded-pill shadow"> Ingresar </button>
+                <button type="submit" class="btn btn-donetick-primary btn-lg rounded-pill shadow"> @Localizer["BtnIngresar"] </button>
             </div>
 
             <div class="d-grid mt-3">
-                <a class="btn btn-outline-dark btn-lg rounded-pill px-4" asp-controller="Usuario" asp-action="Registrar"> Registrarme </a>
+                <a class="btn btn-outline-dark btn-lg rounded-pill px-4" asp-controller="Usuario" asp-action="Registrar"> @Localizer["BtnRegistrar"] </a>
             </div>
 
             <div class="text-center mt-3">
-                <a asp-controller="Usuario" asp-action="SolicitarRecuperacion" class="login-link"> ¿Olvidaste tu contraseña? </a>
+                <a asp-controller="Usuario" asp-action="SolicitarRecuperacion" class="login-link"> @Localizer["OlvidoPassword"] </a>
             </div>
         </form>
 
