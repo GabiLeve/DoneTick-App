@@ -71,8 +71,14 @@
         <hr class="login-divider">
 
         <script src="https://accounts.google.com/gsi/client" async defer></script>
+        
+        <div class="google-signin-wrapper d-grid mt-3">
+            <button type="button" id="customGoogleBtn" class="btn btn-outline-dark btn-lg rounded-pill px-4 d-flex align-items-center justify-content-center">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" style="width:20px; margin-right:10px;">
+                @Localizer["BtnGoogle"]
+            </button>
 
-        <div id="g_id_onload" data-client_id="@ViewBag.GoogleClientId" data-context="signin" data-ux_mode="popup" data-login_uri="https://localhost:7243/Usuario/GoogleSignIn" data-callback="onGoogleSignIn">
+            <div id="buttonDiv" style="display: none;"></div>
         </div>
 
         <div class="google-signin-wrapper">
@@ -87,40 +93,59 @@
 <script>
     async function onGoogleSignIn(response) {
         const credential = response.credential;
-
         const result = await fetch("/Usuario/GoogleSignIn", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ credential })
         });
 
         const data = await result.json();
-
         if (data.success) {
             window.location.href = data.redirectUrl;
         } else {
             alert("Error al iniciar sesión con Google: " + data.message);
         }
     }
-</script>
 
-<script>
     const setupPasswordToggle = (toggleButtonId, passwordInputId) => {
         const toggleButton = document.getElementById(toggleButtonId);
         const passwordInput = document.getElementById(passwordInputId);
-        const eyeIcon = toggleButton.querySelector('i');
-
-        toggleButton.addEventListener('click', function () {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-
-            eyeIcon.classList.toggle('bi-eye');
-            eyeIcon.classList.toggle('bi-eye-slash');
-        });
+        if (toggleButton && passwordInput) {
+            const eyeIcon = toggleButton.querySelector('i');
+            toggleButton.addEventListener('click', function () {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                eyeIcon.classList.toggle('bi-eye');
+                eyeIcon.classList.toggle('bi-eye-slash');
+            });
+        }
     };
 
-    setupPasswordToggle('togglePassword', 'password');
-    setupPasswordToggle('toggleConfirmPassword', 'confirmPassword');
+    window.onload = function () {
+        google.accounts.id.initialize({
+            client_id: "@ViewBag.GoogleClientId",
+            callback: onGoogleSignIn,
+            ux_mode: "popup"
+        });
+
+        google.accounts.id.renderButton(
+            document.getElementById("buttonDiv"),
+            { theme: "outline", size: "large" }
+        );
+
+        const myCustomBtn = document.getElementById('customGoogleBtn');
+        if(myCustomBtn) {
+            myCustomBtn.onclick = function() {
+                const googleButton = document.getElementById("buttonDiv").querySelector('div[role="button"]');
+                if (googleButton) {
+                    googleButton.click();
+                } else {
+                    google.accounts.id.prompt();
+                }
+            };
+        }
+
+        setupPasswordToggle('togglePassword', 'password');
+        setupPasswordToggle('toggleConfirmPassword', 'confirmPassword');
+    };
 </script>
