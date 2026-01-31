@@ -1,7 +1,9 @@
 ﻿@model RegistroDeTickets.web.Models.LoginViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Iniciar Sesión";
+    ViewData["Title"] = Localizer["TituloPestania"];
     ViewData["CSS"] = "Usuario/IniciarSesion.css";
 }
 
@@ -9,10 +11,10 @@
     <div class="registration-form">
 
         <h2 class="text-center mb-4 fw-bold login-title">
-            Iniciar sesión
+            @Localizer["TituloPrincipal"]
         </h2>
         <p class="auth-subtitle text-center">
-            Accedé a tu panel de gestión de tickets
+            @Localizer["Subtitulo"]
         </p>
 
         <form asp-action="IniciarSesion" method="post">
@@ -22,7 +24,7 @@
                 <span class="input-group-text">
                     <i class="bi bi-envelope"></i>
                 </span>
-                <input asp-for="Email" type="text" class="form-control" placeholder="Email">
+                <input asp-for="Email" type="text" class="form-control" placeholder="@Localizer["PlaceholderEmail"]">
             </div>
 
             @if (TempData["MensajeErrorE"] != null)
@@ -38,7 +40,7 @@
                 <span class="input-group-text">
                     <i class="bi bi-lock"></i>
                 </span>
-                <input asp-for="PasswordHash" type="password" class="form-control" id="password" placeholder="Contraseña">
+                <input asp-for="PasswordHash" type="password" class="form-control" id="password" placeholder="@Localizer["PlaceholderPassword"]">
                 <button class="input-group-text password-toggle" type="button" id="togglePassword">
                     <i class="bi bi-eye"></i>
                 </button>
@@ -54,23 +56,29 @@
             <span asp-validation-for="PasswordHash" class="text-danger small"></span>
 
             <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-donetick-primary btn-lg rounded-pill shadow"> Ingresar </button>
+                <button type="submit" class="btn btn-donetick-primary btn-lg rounded-pill shadow"> @Localizer["BtnIngresar"] </button>
             </div>
 
             <div class="d-grid mt-3">
-                <a class="btn btn-outline-dark btn-lg rounded-pill px-4" asp-controller="Usuario" asp-action="Registrar"> Registrarme </a>
+                <a class="btn btn-outline-dark btn-lg rounded-pill px-4" asp-controller="Usuario" asp-action="Registrar"> @Localizer["BtnRegistrar"] </a>
             </div>
 
             <div class="text-center mt-3">
-                <a asp-controller="Usuario" asp-action="SolicitarRecuperacion" class="login-link"> ¿Olvidaste tu contraseña? </a>
+                <a asp-controller="Usuario" asp-action="SolicitarRecuperacion" class="login-link"> @Localizer["OlvidoPassword"] </a>
             </div>
         </form>
 
         <hr class="login-divider">
 
         <script src="https://accounts.google.com/gsi/client" async defer></script>
+        
+        <div class="google-signin-wrapper d-grid mt-3">
+            <button type="button" id="customGoogleBtn" class="btn-google">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" style="width:20px; margin-right:10px;">
+                @Localizer["BtnGoogle"]
+            </button>
 
-        <div id="g_id_onload" data-client_id="@ViewBag.GoogleClientId" data-context="signin" data-ux_mode="popup" data-login_uri="https://localhost:7243/Usuario/GoogleSignIn" data-callback="onGoogleSignIn">
+            <div id="buttonDiv" style="display: none;"></div>
         </div>
 
         <div class="google-signin-wrapper">
@@ -85,40 +93,59 @@
 <script>
     async function onGoogleSignIn(response) {
         const credential = response.credential;
-
         const result = await fetch("/Usuario/GoogleSignIn", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ credential })
         });
 
         const data = await result.json();
-
         if (data.success) {
             window.location.href = data.redirectUrl;
         } else {
             alert("Error al iniciar sesión con Google: " + data.message);
         }
     }
-</script>
 
-<script>
     const setupPasswordToggle = (toggleButtonId, passwordInputId) => {
         const toggleButton = document.getElementById(toggleButtonId);
         const passwordInput = document.getElementById(passwordInputId);
-        const eyeIcon = toggleButton.querySelector('i');
-
-        toggleButton.addEventListener('click', function () {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-
-            eyeIcon.classList.toggle('bi-eye');
-            eyeIcon.classList.toggle('bi-eye-slash');
-        });
+        if (toggleButton && passwordInput) {
+            const eyeIcon = toggleButton.querySelector('i');
+            toggleButton.addEventListener('click', function () {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                eyeIcon.classList.toggle('bi-eye');
+                eyeIcon.classList.toggle('bi-eye-slash');
+            });
+        }
     };
 
-    setupPasswordToggle('togglePassword', 'password');
-    setupPasswordToggle('toggleConfirmPassword', 'confirmPassword');
+    window.onload = function () {
+        google.accounts.id.initialize({
+            client_id: "@ViewBag.GoogleClientId",
+            callback: onGoogleSignIn,
+            ux_mode: "popup"
+        });
+
+        google.accounts.id.renderButton(
+            document.getElementById("buttonDiv"),
+            { theme: "outline", size: "large" }
+        );
+
+        const myCustomBtn = document.getElementById('customGoogleBtn');
+        if(myCustomBtn) {
+            myCustomBtn.onclick = function() {
+                const googleButton = document.getElementById("buttonDiv").querySelector('div[role="button"]');
+                if (googleButton) {
+                    googleButton.click();
+                } else {
+                    google.accounts.id.prompt();
+                }
+            };
+        }
+
+        setupPasswordToggle('togglePassword', 'password');
+        setupPasswordToggle('toggleConfirmPassword', 'confirmPassword');
+    };
 </script>

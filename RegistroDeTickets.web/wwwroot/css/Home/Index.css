@@ -1,29 +1,7 @@
-﻿:root {
-    --donetick-dark: #00004e;
-    --donetick-blue-deep: #000380;
-    --donetick-purple: #6a40da;
-    --donetick-cream: #FFF7F0;
-    --donetick-dark-purple: #4b1c71;
-}
-
-.bg-main-gradient {
+﻿.bg-main-gradient {
     background: linear-gradient(135deg, var(--donetick-cream) 0%, #e1cbf1 100%);
 }
 
 .shadow-distinction {
     box-shadow: 0 20px 40px rgba(0, 0, 78, 0.12) !important;
 }
-
-.btn-donetick-primary {
-    background-color: var(--donetick-purple) !important;
-    color: white !important;
-    border-radius: 50px;
-    padding: 12px 30px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-    .btn-donetick-primary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(106, 64, 218, 0.3) !important;
-    }
