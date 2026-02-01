@@ -1,24 +1,15 @@
 ﻿@using Microsoft.AspNetCore.Builder
 @using Microsoft.AspNetCore.Localization
-@using Microsoft.Extensions.Options
-@inject IOptions<RequestLocalizationOptions> LocOptions
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 
 @{
     var requestCulture = Context.Features.Get<IRequestCultureFeature>();
-    var currentCulture = requestCulture.RequestCulture.UICulture;
-
-    var idiomaActualNativo = currentCulture.NativeName;
-    var idiomaActualMayus = char.ToUpper(idiomaActualNativo[0]) + idiomaActualNativo.Substring(1);
-
-    var cultureItems = LocOptions.Value.SupportedUICultures
-        .Select(c => new { Value = c.Name, Text = char.ToUpper(c.NativeName[0]) + c.NativeName.Substring(1)
-        }).ToList();
+    var idiomaActual = requestCulture?.RequestCulture.UICulture.TwoLetterISOLanguageName ?? "es";
 }
 
 <!DOCTYPE html>
-<html lang="@requestCulture.RequestCulture.UICulture.TwoLetterISOLanguageName">
+<html lang="@idiomaActual">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -43,30 +34,7 @@
                 <div class="ms-auto d-flex align-items-center">
                     <a class="nav-link me-4 fw-bold" style="color: var(--donetick-dark-purple);" asp-controller="Usuario" asp-action="IniciarSesion">@Localizer["IniciarSesion"]</a>
 
-                        <div class="language-select-container">
-                            <form asp-controller="Culture" asp-action="SetIdioma" asp-route-returnUrl="@Context.Request.Path" method="post" id="cultureForm" class="mb-0">
-                                <input type="hidden" name="culture" id="cultureInput" value="@currentCulture.Name" />
-
-                                <div class="dropdown">
-                                <button class="btn dropdown-toggle d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        @idiomaActualMayus
-                                    </button>
-
-                                    <ul class="dropdown-menu shadow-sm">
-                                        @foreach (var culture in cultureItems)
-                                        {
-                                            <li>
-                                                <a class="dropdown-item @(culture.Value == currentCulture.Name ? "active" : "")"
-                                                   href="javascript:void(0)"
-                                                   onclick="submitCultureForm('@culture.Value')">
-                                                    @culture.Text
-                                                </a>
-                                            </li>
-                                        }
-                                    </ul>
-                                </div>
-                            </form>
-                        </div>
+                    <partial name="_SelectorIdiomaPartial" />
 
                     </div>
                 </div>

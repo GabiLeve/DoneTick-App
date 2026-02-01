@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Localization
+@using Microsoft.Extensions.Options
+@inject IOptions<RequestLocalizationOptions> LocOptions
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture.RequestCulture.UICulture;
+
+    var idiomaActualNativo = currentCulture.NativeName;
+    var idiomaActualMayus = char.ToUpper(idiomaActualNativo[0]) + idiomaActualNativo.Substring(1);
+
+    var cultureItems = LocOptions.Value.SupportedUICultures
+        .Select(c => new
+        {
+            Value = c.Name,
+            Text = char.ToUpper(c.NativeName[0]) + c.NativeName.Substring(1)
+        }).ToList();
+}
+
+<div class="language-select-container">
+    <form asp-controller="Culture" asp-action="SetIdioma" asp-route-returnUrl="@Context.Request.Path" method="post" id="cultureForm" class="mb-0">
+        <input type="hidden" name="culture" id="cultureInput" value="@currentCulture.Name" />
+
+        <div class="dropdown">
+            <button class="btn dropdown-toggle d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                @idiomaActualMayus
+            </button>
+
+            <ul class="dropdown-menu shadow-sm">
+                @foreach (var culture in cultureItems)
+                {
+                    <li>
+                        <a class="dropdown-item @(culture.Value == currentCulture.Name ? "active" : "")"
+                           href="javascript:void(0)"
+                           onclick="submitCultureForm('@culture.Value')">
+                            @culture.Text
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </form>
+</div>
