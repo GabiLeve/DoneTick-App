@@ -37,12 +37,13 @@ body {
   text-align: start;
 }
 
-.language-select-container select {
-    appearance: none; 
+.language-select-container .dropdown-toggle {
+    appearance: none;
     background-color: #ffffff;
-    border: 2px solid var(--donetick-purple-light, #e0d0f0);
+    width: 80px;
+    border: 2px solid var(--donetick-purple-light, #e0d0f0) !important;
     border-radius: 20px;
-    padding: 4px 30px 4px 15px;
+    padding: 4px 25px 4px 10px;
     font-size: 0.9rem;
     color: var(--donetick-dark-purple);
     cursor: pointer;
@@ -51,20 +52,42 @@ body {
     transition: all 0.3s ease;
 }
 
-    .language-select-container select:hover {
-        border-color: var(--donetick-purple);
+    .language-select-container .dropdown-toggle:hover,
+    .language-select-container .show > .dropdown-toggle {
+        border-color: var(--donetick-purple) !important;
         box-shadow: 0 0 8px rgba(111, 66, 193, 0.2);
+        color: var(--donetick-purple) !important;
     }
 
-    .language-select-container select:focus {
+    .language-select-container .dropdown-toggle:focus {
         outline: none;
-        border-color: var(--donetick-purple);
+        box-shadow: 0 0 8px rgba(111, 66, 193, 0.3);
     }
 
-    .language-select-container select option {
+.language-select-container .dropdown-menu {
+    background-color: var(--donetick-cream);
+    color: var(--donetick-purple);
+    min-width: auto !important;
+    width: max-content !important;
+    padding: 4px;
+    border-radius: 12px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.language-select-container .dropdown-item {
+    color: gray;
+    font-size: 0.9rem;
+}
+
+    .language-select-container .dropdown-item:hover {
+        background-color: var(--donetick-purple-light);
+        color: var(--donetick-purple-light);
+    }
+
+    .language-select-container .dropdown-item.active {
         background-color: var(--donetick-cream);
-        color: var(--donetick-purple);
-        padding: 10px;
+        color: var(--donetick-dark-purple);
     }
 
 .btn-donetick-primary {
