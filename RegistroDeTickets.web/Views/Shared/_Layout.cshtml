@@ -9,6 +9,7 @@
     var requestCulture = Context.Features.Get<IRequestCultureFeature>();
     var cultureItems = LocOptions.Value.SupportedUICultures
         .Select(c => new SelectListItem { Value = c.Name, Text = char.ToUpper(c.NativeName[0]) + c.NativeName.Substring(1) }).ToList();
+    var currentCulture = requestCulture.RequestCulture.UICulture;
 }
 
 <!DOCTYPE html>
@@ -38,11 +39,42 @@
                     <a class="nav-link me-4 fw-bold" style="color: var(--donetick-dark-purple);" asp-controller="Usuario" asp-action="IniciarSesion">@Localizer["IniciarSesion"]</a>
 
                     <div class="language-select-container">
+
+                        <!--
                     <form asp-controller="Culture" asp-action="SetIdioma" asp-route-returnUrl="@Context.Request.Path" method="post" class="mb-0">
 
                         <select name="culture" class="form-select form-select-sm border-secondary-subtle bg-white" style="width: auto;" onchange="this.form.submit()" asp-for="@requestCulture.RequestCulture.UICulture.Name" asp-items="cultureItems">
                         </select>
                     </form>
+                    -->
+                        <form asp-controller="Culture" asp-action="SetIdioma" asp-route-returnUrl="@Context.Request.Path" method="post" id="cultureForm" class="mb-0">
+                            <input type="hidden" name="culture" id="cultureInput" value="@currentCulture.Name" />
+
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                        style="min-width: 100px;">
+                                   
+                                    @currentCulture.DisplayName
+                                </button>
+
+                                <ul class="dropdown-menu shadow-sm">
+                                    @foreach (var culture in cultureItems)
+                                    {
+                                        <li>
+                                            <a class="dropdown-item @(culture.Value == currentCulture.Name ? "active" : "")"
+                                               href="javascript:void(0)"
+                                               onclick="submitCultureForm('@culture.Value')">
+                                                @culture.Text
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </form>
+
                     </div>
                 </div>
             </div>
@@ -64,6 +96,12 @@
         </div>
     </div>
 </footer>
+    <script>
+        function submitCultureForm(culture) {
+            document.getElementById('cultureInput').value = culture;
+            document.getElementById('cultureForm').submit();
+        }
+    </script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
