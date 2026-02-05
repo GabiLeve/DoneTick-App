@@ -15,7 +15,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RegistroDeTickets.Service\RegistroDeTickets.Service.csproj" />
+    <ProjectReference Include="..\RegistroDeTickets.web\RegistroDeTickets.web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
