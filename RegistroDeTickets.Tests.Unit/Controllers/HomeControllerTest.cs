@@ -1,10 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RegistroDeTickets.web.Controllers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RegistroDeTickets.Tests.Unit.Controllers
 {
