@@ -55,5 +55,29 @@ namespace RegistroDeTickets.Tests.Unit.Controllers
                 store.Object,null,null,null,null,null,null,null,null
             );
         }
+
+        [Fact]
+        public void IniciarSesion_RetornaVistaConGoogleClientId()
+        {
+            string esperado = "cliente-id-google-123";
+            Environment.SetEnvironmentVariable("GOOGLE_CLIENT_ID", esperado);
+
+            var result = _controller.IniciarSesion();
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Equal(esperado, viewResult.ViewData["GoogleClientId"]);
+        }
+
+        [Fact]
+        public void IniciarSesion_VariableEntornoNoConfigurada_RetornaViewBagNulo()
+        {
+            Environment.SetEnvironmentVariable("GOOGLE_CLIENT_ID", null);
+
+            var result = _controller.IniciarSesion();
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Null(viewResult.ViewData["GoogleClientId"]);
+        }
+     
     }
 }
