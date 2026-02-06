@@ -17,7 +17,7 @@ namespace RegistroDeTickets.web.Controllers
     public class UsuarioController : Controller
     {
         //jwt
-        private readonly TokenService _tokenService;
+        private readonly ITokenService _tokenService;
 
         //
         private readonly IUsuarioService _usuarioService;
@@ -30,7 +30,7 @@ namespace RegistroDeTickets.web.Controllers
         private readonly IPasswordHasher<Usuario> _passwordHasher;
         // LOS INYECTO AL CONSTRUCTOR
 
-        public UsuarioController(IUsuarioService usuarioService, IEmailService emailService, TokenService tokenService, ITelemetryService telemetryService, UserManager<Usuario> userManager,
+        public UsuarioController(IUsuarioService usuarioService, IEmailService emailService, ITokenService tokenService, ITelemetryService telemetryService, UserManager<Usuario> userManager,
         IPasswordHasher<Usuario> passwordHasher)
         {
             _usuarioService = usuarioService;
