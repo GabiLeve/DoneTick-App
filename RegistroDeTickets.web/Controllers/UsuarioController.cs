@@ -17,11 +17,9 @@ namespace RegistroDeTickets.web.Controllers
     public class UsuarioController : Controller
     {
         private readonly TokenService _tokenService;
-
         private readonly IUsuarioService _usuarioService;
         private readonly ITelemetryService _telemetryService;
         private string UsuarioE;
-
         private readonly UserManager<Usuario> _userManager;
         private readonly IPasswordHasher<Usuario> _passwordHasher;
 
@@ -31,10 +29,8 @@ namespace RegistroDeTickets.web.Controllers
             _usuarioService = usuarioService;
             _tokenService = tokenService;
             _telemetryService = telemetryService;
-            //
             _userManager = userManager;
             _passwordHasher = passwordHasher;
-            //
         }
 
 
@@ -53,36 +49,43 @@ namespace RegistroDeTickets.web.Controllers
                 return View(usuarioVM);
             }
 
+            Usuario nuevoUsuario = crearUsuarioDesdeVM(usuarioVM);
+            IdentityResult usuarioDBResult = await _userManager.CreateAsync(nuevoUsuario, usuarioVM.PasswordHash);
+
+            if (usuarioDBResult.Succeeded)
+            {
+                return await ManejarRegistroExitosoYAsignarRol(nuevoUsuario);
+            }
+            else
+            {
+                return ManejarErrorRegistro(usuarioDBResult);
+            }
+        }
+
+        private Usuario crearUsuarioDesdeVM(UsuarioViewModel usuarioVM)
+        {
             var nuevoUsuario = new Data.Entidades.Usuario
             {
                 UserName = usuarioVM.Username,
                 Email = usuarioVM.Email,
-                PasswordHash = usuarioVM.PasswordHash,
                 Estado = "Activo",
-                // PARA QUE FIGURE EN NUESTRA TABLA dbo.Cliente
                 Cliente = new Cliente()
 
             };
-            //_usuarioService.AgregarUsuario(nuevoUsuario);
-            // AHORA SE UTILIZA 'CREATEASYNC' PARA AGREGAR USUARIOS-CLIENTES A LA BD 
-            IdentityResult result = await _userManager.CreateAsync(nuevoUsuario, usuarioVM.PasswordHash);
+            return nuevoUsuario;
+        }
 
-            if (result.Succeeded)
-            {               
-                await _userManager.AddToRoleAsync(nuevoUsuario, "Cliente");
-                return RedirectToAction("IniciarSesion");
-            }
-            else
-            {
-                // Se juntan todos los errores en un solo string
-                string errores = string.Join(" ", result.Errors.Select(e => e.Description));
+        private async Task<IActionResult> ManejarRegistroExitosoYAsignarRol(Usuario nuevoUsuario)
+        {
+            await _userManager.AddToRoleAsync(nuevoUsuario, "Cliente");
+            return RedirectToAction("IniciarSesion");
+        }
 
-                
-                TempData["MensajeErrorE"] = errores;
-
-               
-                return RedirectToAction("Registrar");
-            }
+        private IActionResult ManejarErrorRegistro(IdentityResult usuarioDBResult)
+        {
+            string errores = string.Join(" ", usuarioDBResult.Errors.Select(e => e.Description));
+            TempData["MensajeErrorE"] = errores;
+            return RedirectToAction("Registrar");
         }
 
         [HttpGet]
