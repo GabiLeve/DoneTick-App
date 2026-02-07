@@ -8,24 +8,17 @@ namespace RegistroDeTickets.Service
 {
     public interface IUsuarioService
     {
-        // CREATE
         void AgregarUsuario(Usuario usuario);
 
-        // READ
         List<Usuario> ObtenerUsuarios();
 
-        // UPDATE
         void EditarUsuario(Usuario usuario);
 
-        // DELETE
         void EliminarUsuario(Usuario usuario);
 
-        // Buscar por email
         Usuario BuscarPorEmail(string email);
 
-        //Usuario BuscarUsuarioPorEmail(string email);
-
-        string? GenerarTokenRecuperacion(string email);
+        Task<bool> EnviarEmailRecuperacionAsync(string email, string esquema, string host);
 
         bool RestablecerContrasenia(string email, string token, string nuevaContrasenia);
 
@@ -35,7 +28,6 @@ namespace RegistroDeTickets.Service
         List<Usuario> ObtenerTecnicos();
 
         Usuario ObtenerUsuarioPorId(int id);
-        //Usuario RegistrarUsuarioGoogle(string email, string nombreCompleto);
 
         string renombrarUsuarioGoogle(string email, string nombreCompleto);
 
@@ -44,13 +36,14 @@ namespace RegistroDeTickets.Service
     public class UsuarioService : IUsuarioService
     {
         private readonly IUsuarioRepository _usuarioRepository;
-
         private readonly IPasswordHasher<Usuario> _passwordHasher;
+        private readonly IEmailService _emailService;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository, IPasswordHasher<Usuario> passwordHasher)
+        public UsuarioService(IUsuarioRepository usuarioRepository, IPasswordHasher<Usuario> passwordHasher, IEmailService emailService)
         {
             _usuarioRepository = usuarioRepository;
             _passwordHasher = passwordHasher;
+            _emailService = emailService;
         }
 
         public void AgregarUsuario(Usuario usuario)
@@ -69,24 +62,22 @@ namespace RegistroDeTickets.Service
         {
             _usuarioRepository.EditarUsuario(usuario);
         }
-
-        public string? GenerarTokenRecuperacion(string email)
+        
+        public async Task<bool> EnviarEmailRecuperacionAsync(string email, string esquema, string host)
         {
             var usuario = _usuarioRepository.BuscarUsuarioPorEmail(email);
-            if (usuario == null)
-            {
-                return null;
-            }
+            if (usuario == null) return false;
 
             string token = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
-
             usuario.TokenHashRecuperacion = HashearToken(token);
-
             usuario.TokenHashRecuperacionExpiracion = DateTime.UtcNow.AddMinutes(30);
-
             _usuarioRepository.EditarUsuario(usuario);
 
-            return token;
+            var link = $"{esquema}://{host}/Usuario/RestablecerContrasenia?email={email}&token={token}";
+
+            await _emailService.EnviarEmailRecuperacion(email, link);
+
+            return true;
         }
 
         public bool RestablecerContrasenia(string email, string token, string nuevaContrasenia)
@@ -128,30 +119,6 @@ namespace RegistroDeTickets.Service
         {
             return _usuarioRepository.BuscarPorEmail(email);
         }
-        /*
-        public Usuario RegistrarUsuarioGoogle(string email, string nombreCompleto)
-        {
-            var usuarioExistente = _usuarioRepository.BuscarPorEmail(email);
-            if (usuarioExistente != null)
-            {
-                return usuarioExistente;
-            }
-
-            //trata de setear e primer nombre con username si no puede pone el mail
-
-            string primerNombre = (nombreCompleto ?? email).Split(' ')[0];
-
-            var nuevoUsuario = new Usuario
-            {
-                UserName = primerNombre,
-                Email = email,
-                PasswordHash = "", // Google gestiona la autenticación
-                Estado = "Activo"
-            };
-
-            _usuarioRepository.AgregarUsuario(nuevoUsuario);
-            return nuevoUsuario;
-        }*/
 
         public string renombrarUsuarioGoogle(string email, string nombreCompleto)
         {
@@ -173,8 +140,6 @@ namespace RegistroDeTickets.Service
                 _usuarioRepository.EditarUsuario(usuario);
             }
         }
-
-     
 
         public List<Usuario> ObtenerTecnicos()
         {
