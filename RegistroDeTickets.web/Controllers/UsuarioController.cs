@@ -16,25 +16,19 @@ namespace RegistroDeTickets.web.Controllers
 {
     public class UsuarioController : Controller
     {
-        //jwt
         private readonly ITokenService _tokenService;
 
-        //
         private readonly IUsuarioService _usuarioService;
         private readonly ITelemetryService _telemetryService;
         private string UsuarioE;
 
-        public readonly IEmailService _emailService;
-        //
         private readonly UserManager<Usuario> _userManager;
         private readonly IPasswordHasher<Usuario> _passwordHasher;
-        // LOS INYECTO AL CONSTRUCTOR
 
         public UsuarioController(IUsuarioService usuarioService, IEmailService emailService, ITokenService tokenService, ITelemetryService telemetryService, UserManager<Usuario> userManager,
         IPasswordHasher<Usuario> passwordHasher)
         {
             _usuarioService = usuarioService;
-            _emailService = emailService;
             _tokenService = tokenService;
             _telemetryService = telemetryService;
             //
@@ -274,7 +268,6 @@ namespace RegistroDeTickets.web.Controllers
             }
         }
 
-       
         public IActionResult CerrarSesion()
         {
             Response.Cookies.Delete("jwt");
@@ -285,7 +278,6 @@ namespace RegistroDeTickets.web.Controllers
             return RedirectToAction("IniciarSesion", "Usuario");
 
         }
-
 
         public IActionResult Listar()
         {
@@ -298,82 +290,15 @@ namespace RegistroDeTickets.web.Controllers
         {
             return View();
         }
-
+        
         [HttpPost]
         public async Task<IActionResult> SolicitarRecuperacion(SolicitarRecuperacionViewModel vm)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(vm);
-            }
-
-            var token = _usuarioService.GenerarTokenRecuperacion(vm.Email);
-
-            if (token != null)
-            {
-                var link = GenerarLinkRecuperacion(vm.Email, token);
-
-                var cuerpoEmail = GenerarCuerpoEmailRecuperacion(link);
-
-                await _emailService.EnviarEmail(vm.Email, "Recuperación de Contraseña", cuerpoEmail);
-            }
-
+            if (!ModelState.IsValid) return View(vm);
+            await _usuarioService.EnviarEmailRecuperacionAsync(vm.Email, Request.Scheme, Request.Host.ToString());
             return RedirectToAction("SolicitarRecuperacionConfirmacion");
         }
-
-        private string GenerarLinkRecuperacion(string email, string token)
-        {
-            return Url.Action(
-                action: "RestablecerContrasenia",
-                controller: "Usuario",
-                values: new { email = email, token = token },
-                protocol: Request.Scheme
-            );
-        }
-
-        private string GenerarCuerpoEmailRecuperacion(string link)
-        {
-            return $@"
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset='UTF-8'>
-
-        </head>
-        <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; '>
-            <h1 style='color: #2c3e50; font-size: 24px; font-weight: bold; margin-bottom: 20px;'>
-                Recuperación de Contraseña
-            </h1>
-            
-            <p style='margin-bottom: 15px;'>
-                Recibimos una solicitud para restablecer tu contraseña. 
-                Si no fuiste vos, ignorá este mensaje.
-            </p>
-            
-            <p style='margin-bottom: 15px;'>
-                Hacé click en el siguiente botón para continuar:
-            </p>
-            
-            <p style='margin-bottom: 15px;'>
-                <a href='{link}' 
-                   style='background-color: #3498db; 
-                          color: white; 
-                          padding: 12px 24px; 
-                          text-decoration: none; 
-                          border-radius: 5px; 
-                          display: inline-block;'>
-                    Restablecer mi contraseña
-                </a>
-            </p>
-            
-            <p style='margin-top: 20px; color: #7f8c8d; font-size: 14px;'>
-                El enlace expirará en 30 minutos.
-            </p>
-        </body>
-        </html>
-    ";
-        }
-
+       
         [HttpGet]
         [AutoValidateAntiforgeryToken]
         public IActionResult SolicitarRecuperacionConfirmacion()
