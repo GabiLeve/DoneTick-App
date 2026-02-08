@@ -24,6 +24,8 @@ namespace RegistroDeTickets.Service
 
         void DesignarUsuarioComoTecnico(Usuario usuario);
 
+        Task<string> RegistrarUsuario(string username, string email, string password);
+
 
         List<Usuario> ObtenerTecnicos();
 
@@ -38,12 +40,15 @@ namespace RegistroDeTickets.Service
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IPasswordHasher<Usuario> _passwordHasher;
         private readonly IEmailService _emailService;
+        private readonly UserManager<Usuario> _userManager;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository, IPasswordHasher<Usuario> passwordHasher, IEmailService emailService)
+
+        public UsuarioService(IUsuarioRepository usuarioRepository, IPasswordHasher<Usuario> passwordHasher, IEmailService emailService, UserManager<Usuario> userManager)
         {
             _usuarioRepository = usuarioRepository;
             _passwordHasher = passwordHasher;
             _emailService = emailService;
+            _userManager = userManager;
         }
 
         public void AgregarUsuario(Usuario usuario)
@@ -51,6 +56,34 @@ namespace RegistroDeTickets.Service
             usuario.PasswordHash = _passwordHasher.HashPassword(usuario, usuario.PasswordHash);
 
             _usuarioRepository.AgregarUsuario(usuario);
+        }
+
+        public async Task<string> RegistrarUsuario(string username, string email, string password)
+        {
+            var nuevoUsuario = crearUsuarioVM(username, email, password);
+
+            var resultado = await _userManager.CreateAsync(nuevoUsuario, password);
+
+            if(!resultado.Succeeded)
+            {
+                return string.Join(" ", resultado.Errors.Select(e => e.Description));
+            }
+            await _userManager.AddToRoleAsync(nuevoUsuario, "Cliente");
+
+            return null;
+        }
+
+        private Usuario crearUsuarioVM(string username, string email, string password)
+        {
+            var nuevoUsuario = new Data.Entidades.Usuario
+            {
+                UserName = username,
+                Email = email,
+                Estado = "Activo",
+                Cliente = new Cliente()
+
+            };
+            return nuevoUsuario;
         }
 
         public List<Usuario> ObtenerUsuarios()

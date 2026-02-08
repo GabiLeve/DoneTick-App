@@ -1,11 +1,6 @@
 ﻿using Google.Apis.Auth;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.SqlServer.Server;
 using RegistroDeTickets.Data.Entidades;
 using RegistroDeTickets.Service;
 using RegistroDeTickets.web.Models;
@@ -49,45 +44,17 @@ namespace RegistroDeTickets.web.Controllers
                 return View(usuarioVM);
             }
 
-            Usuario nuevoUsuario = crearUsuarioDesdeVM(usuarioVM);
-            IdentityResult usuarioDBResult = await _userManager.CreateAsync(nuevoUsuario, usuarioVM.PasswordHash);
-
-            if (usuarioDBResult.Succeeded)
+            string mensajeError = await _usuarioService.RegistrarUsuario(usuarioVM.Username, usuarioVM.Email, usuarioVM.PasswordHash);
             {
-                return await ManejarRegistroExitosoYAsignarRol(nuevoUsuario);
-            }
-            else
-            {
-                return ManejarErrorRegistro(usuarioDBResult);
+                if(string.IsNullOrEmpty(mensajeError))
+                {
+                    return RedirectToAction("IniciarSesion");
+                }
+                TempData["MensajeErrorE"] = mensajeError;
+                return RedirectToAction("Registrar");
             }
         }
-
-        private Usuario crearUsuarioDesdeVM(UsuarioViewModel usuarioVM)
-        {
-            var nuevoUsuario = new Data.Entidades.Usuario
-            {
-                UserName = usuarioVM.Username,
-                Email = usuarioVM.Email,
-                Estado = "Activo",
-                Cliente = new Cliente()
-
-            };
-            return nuevoUsuario;
-        }
-
-        private async Task<IActionResult> ManejarRegistroExitosoYAsignarRol(Usuario nuevoUsuario)
-        {
-            await _userManager.AddToRoleAsync(nuevoUsuario, "Cliente");
-            return RedirectToAction("IniciarSesion");
-        }
-
-        private IActionResult ManejarErrorRegistro(IdentityResult usuarioDBResult)
-        {
-            string errores = string.Join(" ", usuarioDBResult.Errors.Select(e => e.Description));
-            TempData["MensajeErrorE"] = errores;
-            return RedirectToAction("Registrar");
-        }
-
+    
         [HttpGet]
         [AutoValidateAntiforgeryToken]
         public IActionResult IniciarSesion()
