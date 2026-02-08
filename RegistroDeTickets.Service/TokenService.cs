@@ -12,10 +12,17 @@ using System.Threading.Tasks;
 
 namespace RegistroDeTickets.Service
 {
-    public  class TokenService
+    public interface ITokenService
+    {
+        string GenerateToken(string username, IList<string> roles, int Id, IList<Claim> additionalClaims);
+        string DecryptToken(string protectedToken);
+    }
+
+    public class TokenService : ITokenService
     {
         private readonly string _jwtkey;
         private readonly IDataProtector _protector;
+
         public TokenService(IConfiguration config,IDataProtectionProvider provider)
         {
             _jwtkey = config["Jwt:Key"];
