@@ -10,6 +10,10 @@ namespace RegistroDeTickets.Service
     {
         void AgregarUsuario(Usuario usuario);
 
+        Task<string> RegistrarUsuario(string username, string email, string password);
+
+        Task<(bool exito, string mensajeError, string token, string rol)> IniciarSesion(string email, string password);
+
         List<Usuario> ObtenerUsuarios();
 
         void EditarUsuario(Usuario usuario);
@@ -23,8 +27,6 @@ namespace RegistroDeTickets.Service
         bool RestablecerContrasenia(string email, string token, string nuevaContrasenia);
 
         void DesignarUsuarioComoTecnico(Usuario usuario);
-
-        Task<string> RegistrarUsuario(string username, string email, string password);
 
 
         List<Usuario> ObtenerTecnicos();
@@ -40,14 +42,18 @@ namespace RegistroDeTickets.Service
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IPasswordHasher<Usuario> _passwordHasher;
         private readonly IEmailService _emailService;
+        private readonly ITelemetryService _telemetryService;
+        private readonly ITokenService _tokenService;   
         private readonly UserManager<Usuario> _userManager;
 
 
-        public UsuarioService(IUsuarioRepository usuarioRepository, IPasswordHasher<Usuario> passwordHasher, IEmailService emailService, UserManager<Usuario> userManager)
+        public UsuarioService(IUsuarioRepository usuarioRepository, IPasswordHasher<Usuario> passwordHasher, IEmailService emailService, ITelemetryService telemetryService, ITokenService tokenService, UserManager<Usuario> userManager)
         {
             _usuarioRepository = usuarioRepository;
             _passwordHasher = passwordHasher;
             _emailService = emailService;
+            _telemetryService = telemetryService;
+            _tokenService = tokenService;
             _userManager = userManager;
         }
 
@@ -84,6 +90,54 @@ namespace RegistroDeTickets.Service
 
             };
             return nuevoUsuario;
+        }
+
+        public async Task<(bool exito, string mensajeError, string token, string rol)> IniciarSesion(
+        string email,
+        string password)
+        {
+            var usuarioEncontrado = BuscarPorEmail(email);
+
+            if (usuarioEncontrado == null)
+            {
+                _telemetryService.RegistrarEvento("InicioSesionFallidoPorEmail", null);
+                return (false, "Credenciales incorrectas. Intentalo nuevamente", null, null);
+            }
+
+            var resultadoVerificacion = _passwordHasher.VerifyHashedPassword(
+                usuarioEncontrado,
+                usuarioEncontrado.PasswordHash,
+                password
+            );
+
+            if (resultadoVerificacion == PasswordVerificationResult.Failed)
+            {
+                _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuarioEncontrado);
+                return (false, "Credenciales incorrectas. Intentalo nuevamente", null, null);
+            }
+
+            var rolesDelUsuario = await _userManager.GetRolesAsync(usuarioEncontrado);
+            var claimsAdicionales = await _userManager.GetClaimsAsync(usuarioEncontrado);
+
+            var token = _tokenService.GenerateToken(
+                usuarioEncontrado.UserName,
+                rolesDelUsuario,
+                usuarioEncontrado.Id,
+                claimsAdicionales
+            );
+
+            string rolPrincipal = DeterminarRolPrincipal(rolesDelUsuario);
+
+            _telemetryService.RegistrarEvento("InicioSesionExitoso", usuarioEncontrado);
+
+            return (true, null, token, rolPrincipal);
+        }
+
+        private string DeterminarRolPrincipal(IList<string> roles)
+        {
+            if (roles.Contains("Admin")) return "Admin";
+            if (roles.Contains("Tecnico")) return "Tecnico";
+            return "Cliente";
         }
 
         public List<Usuario> ObtenerUsuarios()

@@ -66,51 +66,21 @@ namespace RegistroDeTickets.web.Controllers
         [HttpPost]
         public async Task<IActionResult> IniciarSesion(LoginViewModel usuario)
         {
-
             if (!ModelState.IsValid)
             {
                 return View(usuario);
             }
 
-            var usuarioEncontrado = _usuarioService.BuscarPorEmail(usuario.Email);
-
-            if (usuarioEncontrado == null)
-            { 
-                TempData["MensajeErrorE"] = "Credenciales incorrectas. Intentalo nuevamente";
-                _telemetryService.RegistrarEvento("InicioSesionFallidoPorEmail", usuarioEncontrado);
-                return View(usuario);
-            }
-
-            var resultadoVerificacion = _passwordHasher.VerifyHashedPassword(
-                usuarioEncontrado,
-                usuarioEncontrado.PasswordHash,
+            var (exito, mensajeError, token, rol) = await _usuarioService.IniciarSesion(
+                usuario.Email,
                 usuario.PasswordHash
+            );
 
-                );
-
-            if (resultadoVerificacion == PasswordVerificationResult.Failed)
+            if (!exito)
             {
-                TempData["MensajeErrorP"] = "Credenciales incorrectas. Intentalo nuevamente";
-                _telemetryService.RegistrarEvento("InicioSesionFallidoPorContraseña", usuarioEncontrado);
+                TempData["MensajeErrorE"] = mensajeError;
                 return View(usuario);
             }
-
-            _telemetryService.RegistrarEvento("InicioSesionExitoso", usuarioEncontrado);
-
-            // BUSCO EL ROL EN LA BASE DE DATOS
-            var rolesDelUsuario = await _userManager.GetRolesAsync(usuarioEncontrado);
-
-            var claimsAdicionales = await _userManager.GetClaimsAsync(usuarioEncontrado);
-
-            TempData["UsuarioE"] = usuarioEncontrado.UserName;
-            //jwt 
-            //var token = _tokenService.GenerateToken(usuarioEncontrado.UserName);
-
-            // MODIFICO EL GENERATE TOKEN PARA QUE ACEPTE ROLES
-            var token = _tokenService.GenerateToken(usuarioEncontrado.UserName, rolesDelUsuario,usuarioEncontrado.Id,
-        claimsAdicionales);
-            //cookie
-
 
             Response.Cookies.Append("jwt", token, new CookieOptions
             {
@@ -119,14 +89,13 @@ namespace RegistroDeTickets.web.Controllers
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.Now.AddHours(1)
             });
-            if (rolesDelUsuario.Contains("Tecnico")){
-                return RedirectToAction("Inicio", "Tecnico");
-            }
-            if (rolesDelUsuario.Contains("Admin"))
+
+            return rol switch
             {
-                return RedirectToAction("Inicio", "Administrador");
-            }
-            return RedirectToAction("Inicio","Cliente");
+                "Tecnico" => RedirectToAction("Inicio", "Tecnico"),
+                "Admin" => RedirectToAction("Inicio", "Administrador"),
+                _ => RedirectToAction("Inicio", "Cliente")
+            };
         }
 
         [HttpGet]
