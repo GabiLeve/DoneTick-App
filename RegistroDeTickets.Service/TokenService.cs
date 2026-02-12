@@ -1,24 +1,24 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Data;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace RegistroDeTickets.Service
 {
     public interface ITokenService
     {
-        string GenerateToken(string username, IList<string> roles, int Id, IList<Claim> additionalClaims);
+        string GenerateToken(
+            string username,
+            IList<string> roles,
+            int id,
+            IList<Claim> additionalClaims
+        );
+
         string DecryptToken(string protectedToken);
     }
-
-    public class TokenService : ITokenService
+    public  class TokenService : ITokenService
     {
         private readonly string _jwtkey;
         private readonly IDataProtector _protector;

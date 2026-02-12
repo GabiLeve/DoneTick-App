@@ -59,7 +59,7 @@ builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
 //jwt
 
 builder.Services.AddDataProtection();
-builder.Services.AddSingleton<TokenService>();
+builder.Services.AddSingleton<ITokenService, TokenService>();
 
 
 var key = builder.Configuration["Jwt:Key"];
@@ -83,7 +83,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     {
         OnMessageReceived = context =>
         {
-            var tokenService = context.HttpContext.RequestServices.GetRequiredService<TokenService>();
+            var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
             var token = context.Request.Cookies["jwt"];
             if (!string.IsNullOrEmpty(token))
             {
@@ -157,12 +157,10 @@ app.UseRouting();
 app.UseAuthentication();//jwt
 app.UseAuthorization(); // Etiquetas Autorize
 
-app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllers();
 

@@ -11,14 +11,15 @@ namespace RegistroDeTickets.web.Controllers
 {
     public class UsuarioController : Controller
     {
-        private readonly TokenService _tokenService;
+        private readonly ITokenService _tokenService;
+
         private readonly IUsuarioService _usuarioService;
         private readonly ITelemetryService _telemetryService;
         private string UsuarioE;
         private readonly UserManager<Usuario> _userManager;
         private readonly IPasswordHasher<Usuario> _passwordHasher;
 
-        public UsuarioController(IUsuarioService usuarioService, TokenService tokenService, ITelemetryService telemetryService, UserManager<Usuario> userManager,
+        public UsuarioController(IUsuarioService usuarioService, IEmailService emailService, ITokenService tokenService, ITelemetryService telemetryService, UserManager<Usuario> userManager,
         IPasswordHasher<Usuario> passwordHasher)
         {
             _usuarioService = usuarioService;
